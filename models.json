@@ -1,0 +1,74 @@
+{
+  "moss": {
+    "repo": "OpenMOSS-Team/MOSS-Image-SFT",
+    "revision": "f972bd4b4b9e3852133cc5da954d87bc32cd8fb9",
+    "folder": "moss-sft",
+    "files": {
+      "LICENSE": 11358,
+      "model_index.json": 412,
+      "pipeline_moss_image.py": 25060,
+      "scheduler/pipeline_moss_image.py": 25060,
+      "scheduler/scheduler_config.json": 494,
+      "text_encoder/config.json": 2813,
+      "text_encoder/model-00001-of-00004.safetensors": 4973910744,
+      "text_encoder/model-00002-of-00004.safetensors": 4988364288,
+      "text_encoder/model-00003-of-00004.safetensors": 4954202112,
+      "text_encoder/model-00004-of-00004.safetensors": 1869001848,
+      "text_encoder/model.safetensors.index.json": 64641,
+      "tokenizer/chat_template.jinja": 7756,
+      "tokenizer/tokenizer.json": 19989325,
+      "tokenizer/tokenizer_config.json": 1123,
+      "transformer/config.json": 240,
+      "transformer/diffusion_pytorch_model-00001-of-00003.safetensors": 4991978016,
+      "transformer/diffusion_pytorch_model-00002-of-00003.safetensors": 4983137016,
+      "transformer/diffusion_pytorch_model-00003-of-00003.safetensors": 189549184,
+      "transformer/diffusion_pytorch_model.safetensors.index.json": 40298,
+      "transformer/pipeline_moss_image.py": 25060,
+      "vae/config.json": 838,
+      "vae/diffusion_pytorch_model.safetensors": 249521372
+    },
+    "sha256": {
+      "text_encoder/model-00001-of-00004.safetensors": "abfaa3d3a8612508c85ee8f6da9c734b862f10298b903765c4ad384177c32b0b",
+      "text_encoder/model-00002-of-00004.safetensors": "9112637fa6bf4d07bafd6ae268852b18d3d0c1242f4ee901c5579006e5bd4894",
+      "text_encoder/model-00003-of-00004.safetensors": "956f1ef51d0cfe610b0d22987c0b7821c36e3ce228abceccef523518bcf079dc",
+      "text_encoder/model-00004-of-00004.safetensors": "9e21d20e8adde88c3e0b65d4a0d251f143d98ee9d52db36b4348361091e4e208",
+      "tokenizer/tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+      "transformer/diffusion_pytorch_model-00001-of-00003.safetensors": "e40d3444940a0b0fd7cd45ba7959a5bd3d5efd7ddf87aae5ce4d87ce8aa03d01",
+      "transformer/diffusion_pytorch_model-00002-of-00003.safetensors": "d106da790ec2924ffd8af04b4ffa8f8de281a974b58e55649c3ec596dc8ef033",
+      "transformer/diffusion_pytorch_model-00003-of-00003.safetensors": "11f637ab17c7093344a6110a1e87ffda8e56558dc55183d8e790222cfcdcf52d",
+      "vae/diffusion_pytorch_model.safetensors": "c3bdf94dc67ec69b30ea9fe1fa8340085679cae64d019f7c7e4a9921f1a7f17a"
+    },
+    "mirrors": {
+      "text_encoder/model-00001-of-00004.safetensors": "https://modelscope.cn/models/openmoss/MOSS-Image-SFT/resolve/169d8d0c9e508cdc34c29bc3e421a361dc418688/text_encoder/model-00001-of-00004.safetensors",
+      "text_encoder/model-00002-of-00004.safetensors": "https://modelscope.cn/models/openmoss/MOSS-Image-SFT/resolve/169d8d0c9e508cdc34c29bc3e421a361dc418688/text_encoder/model-00002-of-00004.safetensors",
+      "text_encoder/model-00003-of-00004.safetensors": "https://modelscope.cn/models/openmoss/MOSS-Image-SFT/resolve/169d8d0c9e508cdc34c29bc3e421a361dc418688/text_encoder/model-00003-of-00004.safetensors",
+      "text_encoder/model-00004-of-00004.safetensors": "https://modelscope.cn/models/openmoss/MOSS-Image-SFT/resolve/555c878b5eb71567ae6055d12821186066b82e5a/text_encoder/model-00004-of-00004.safetensors",
+      "tokenizer/tokenizer.json": "https://modelscope.cn/models/openmoss/MOSS-Image-SFT/resolve/44edb8d07968e161a21157d46d9521df40d0f385/tokenizer/tokenizer.json",
+      "transformer/diffusion_pytorch_model-00001-of-00003.safetensors": "https://modelscope.cn/models/openmoss/MOSS-Image-SFT/resolve/5cc5c9c31d59495bc55a1cbb95a01aef1917aaab/transformer/diffusion_pytorch_model-00001-of-00003.safetensors",
+      "transformer/diffusion_pytorch_model-00002-of-00003.safetensors": "https://modelscope.cn/models/openmoss/MOSS-Image-SFT/resolve/5cc5c9c31d59495bc55a1cbb95a01aef1917aaab/transformer/diffusion_pytorch_model-00002-of-00003.safetensors",
+      "transformer/diffusion_pytorch_model-00003-of-00003.safetensors": "https://modelscope.cn/models/openmoss/MOSS-Image-SFT/resolve/5cc5c9c31d59495bc55a1cbb95a01aef1917aaab/transformer/diffusion_pytorch_model-00003-of-00003.safetensors",
+      "vae/diffusion_pytorch_model.safetensors": "https://modelscope.cn/models/openmoss/MOSS-Image-SFT/resolve/5bf345d63c9054aa6fc02b2ed1a0ec91ccfe235a/vae/diffusion_pytorch_model.safetensors"
+    }
+  },
+  "prompt": {
+    "repo": "mlx-community/Qwen3.5-4B-4bit",
+    "revision": "0e7ffd5c629ef7719d4cbc04069232580bfa9d9c",
+    "folder": "prompt",
+    "files": {
+      "chat_template.jinja": 7756,
+      "config.json": 3366,
+      "model.safetensors": 3034300695,
+      "model.safetensors.index.json": 101944,
+      "preprocessor_config.json": 390,
+      "processor_config.json": 1300,
+      "tokenizer.json": 19989343,
+      "tokenizer_config.json": 1139,
+      "video_preprocessor_config.json": 385,
+      "vocab.json": 6722759
+    },
+    "sha256": {
+      "model.safetensors": "5fb9acd0246866381cf8c5c354c6db1019f6498eec4ccb4f5edcc71ffeacb2db",
+      "tokenizer.json": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4"
+    }
+  }
+}

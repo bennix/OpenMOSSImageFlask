@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MOSS Image · 本地工作台</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#203528;background:#f3f5ee}*{box-sizing:border-box}body{margin:0}main{max-width:1080px;margin:48px auto;padding:0 24px}header{border-bottom:1px solid #d4ddce;padding-bottom:22px;margin-bottom:28px}h1{font-size:36px;letter-spacing:-1px;margin:0 0 8px}p{line-height:1.65;color:#60705e}.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}section{background:white;padding:24px;border:1px solid #dce3d6;border-radius:16px}h2{font-size:18px;margin:0 0 18px}textarea{width:100%;height:180px;resize:vertical;padding:14px;border:1px solid #ccd6c7;border-radius:8px;font:inherit}label{font-size:14px;display:block;margin:14px 0 6px}input[type=number]{width:100%;padding:9px;border:1px solid #ccd6c7;border-radius:6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}button{font:inherit;border:0;border-radius:8px;padding:11px 16px;background:#284e34;color:white;cursor:pointer;margin-top:14px}button:disabled{opacity:.5;cursor:wait}.small{font-size:13px}.model{padding:10px 0 18px;border-bottom:1px solid #eef1e8;overflow-wrap:anywhere}.model button{padding:7px 12px;font-size:13px}.file{margin-top:8px;overflow-wrap:anywhere}.file progress{display:block;margin-top:4px}progress{width:100%;accent-color:#456e3c}#stage{white-space:pre-wrap;font-size:14px;line-height:1.8}#gen{display:block;margin-top:10px}#tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}#tools button{margin-top:0;padding:7px 12px;font-size:13px}#viewport{position:relative;height:420px;margin-top:10px;overflow:hidden;border-radius:8px;background:#e7eee4;cursor:grab;touch-action:none}#viewport.dragging{cursor:grabbing}#image{position:absolute;top:0;left:0;width:auto;height:auto;max-width:none;margin:0;transform-origin:0 0;user-select:none}#caption{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:760px){ #viewport{height:280px}}a{color:#284e34}@media(max-width:760px){main{margin:24px auto}.grid{grid-template-columns:1fr}}
+</style>
+<main>
+<header><h1>MOSS Image</h1><p>本地生成工作台 · 中文构思，英文扩写，图像生成</p><p class="small">模型来自 <a href="/about/">复旦大学计算与智能创新学院 · 邱锡鹏团队</a></p></header>
+<div class="grid"><section>
+<h2>01 / 模型准备</h2><div id="models"></div>
+<h2 style="margin-top:26px">02 / 描述画面</h2>
+<textarea id="prompt" placeholder="例如：清晨的森林里，一只橘猫坐在长满青苔的石头上，柔和的阳光穿过树叶。">清晨的森林里，一只橘猫坐在长满青苔的石头上，柔和的阳光穿过树叶，水彩插画风格。</textarea>
+<label><input id="enhance" type="checkbox"> 使用本地 MLX 扩写提示词</label>
+<div class="fields">
+<label>宽度<input id="width" type="number" value="512" min="256" max="1024" step="16"></label>
+<label>高度<input id="height" type="number" value="512" min="256" max="1024" step="16"></label>
+<label>步数<input id="steps" type="number" value="30" min="1" max="75"></label>
+<label>种子<input id="seed" type="number" value="42" min="0" max="4294967295"></label>
+</div><button id="generate">生成图片</button>
+<p class="small">MOSS-SFT 约 27.2 GB；提示词模型约 3 GB。下载支持续传。Mac 使用 MPS，并分阶段释放模型内存。首次运行需要加载权重，请耐心等待。</p>
+</section><section><h2>03 / 生成结果</h2><div id="stage" role="status">等待任务</div><progress id="gen" hidden></progress>
+<div id="viewer" hidden>
+<div id="tools">
+<button type="button" id="copy-image">复制</button>
+<button type="button" id="save-image">保存</button>
+<button type="button" id="zoom-out">缩小</button>
+<button type="button" id="zoom-in">放大</button>
+<button type="button" id="zoom-fit">适应</button>
+<span id="zoom-label" class="small"></span>
+</div>
+<div id="viewport" title="滚轮缩放，拖动平移"><img id="image" alt="生成的图片" draggable="false"></div>
+</div>
+<a id="save" hidden download="moss-image.png"></a><p id="caption" class="small"></p></section></div>
+</main>
+<script>
+let active=null;
+const $=id=>document.getElementById(id);
+async function api(path,body){const response=await fetch(path,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{});const value=await response.json();if(!response.ok)throw Error(value.error||'请求失败');return value}
+function setGen(text,percent){const bar=$('gen');$('stage').textContent=text;bar.hidden=false;if(percent==null)bar.removeAttribute('value');else{bar.max=100;bar.value=percent}}
+function hideGen(){$('gen').hidden=true}
+const genPhase={'MLX 提示词扩写':8,'加载文本编码器':12,'编码提示词':22,'加载图像模型':30,'解码图片':96,'完成':100};
+function renderGenerate(progress){if(progress&&progress.stage==='图像采样'&&progress.total){const pct=30+Math.round(66*progress.step/progress.total);setGen(`图像采样 · ${progress.step}/${progress.total} 步 · ${pct}%`,pct);return}const stage=progress&&progress.stage;if(stage&&stage in genPhase){setGen(`${stage} · ${genPhase[stage]}%`,genPhase[stage]);return}setGen(stage||'正在启动模型进程',null)}
+async function start(path,body){try{const job=await api(path,body);active=job.id;if(path==='/api/generate')setGen('任务已提交',null);else{$('stage').textContent='任务已提交';hideGen()}$('generate').disabled=true}catch(error){$('stage').textContent=error.message;hideGen()}}
+$('generate').onclick=()=>{const body={prompt:$('prompt').value,enhance:$('enhance').checked};for(const key of ['width','height','steps','seed'])body[key]=Number($(key).value);start('/api/generate',body)};
+function fmtBytes(n){if(n>=1e9)return (n/1e9).toFixed(2)+' GB';if(n>=1e6)return (n/1e6).toFixed(1)+' MB';return n>=1e3?(n/1e3).toFixed(0)+' KB':n+' B'}
+function fmtSpeed(n){if(n==null)return '测速中';if(n>=1e6)return (n/1e6).toFixed(2)+' MB/s';if(n>=1e3)return Math.round(n/1e3)+' KB/s';return n+' B/s'}
+function fileLabel(name){const parts=name.split('/');const dir=parts.length>1?parts[0]:'';const base=parts[parts.length-1];const title={text_encoder:'文本编码器',transformer:'DiT',vae:'VAE',tokenizer:'分词器'}[dir]||dir||base;const shard=base.match(/(\d+)-of-(\d+)/);return shard?`${title} ${Number(shard[1])}/${Number(shard[2])}`:title}
+function fmtEta(remain,speed){if(!speed||remain<=0)return '';const s=remain/speed;if(s<90)return `剩余约 ${Math.max(1,Math.round(s))} 秒`;if(s<3600)return `剩余约 ${Math.round(s/60)} 分钟`;return `剩余约 ${Math.floor(s/3600)} 小时 ${Math.round((s%3600)/60)} 分钟`}
+const view={scale:1,x:0,y:0};
+function applyView(){$('image').style.transform=`translate(${view.x}px,${view.y}px) scale(${view.scale})`;$('zoom-label').textContent=`${Math.round(view.scale*100)}%`}
+function fitImage(){const img=$('image'),box=$('viewport');if(!img.naturalWidth)return;const scale=Math.min(box.clientWidth/img.naturalWidth,box.clientHeight/img.naturalHeight,1);view.scale=scale;view.x=(box.clientWidth-img.naturalWidth*scale)/2;view.y=(box.clientHeight-img.naturalHeight*scale)/2;applyView()}
+function zoomBy(factor){const box=$('viewport'),px=box.clientWidth/2,py=box.clientHeight/2;const next=Math.min(8,Math.max(.2,view.scale*factor));const ratio=next/view.scale;view.x=px-(px-view.x)*ratio;view.y=py-(py-view.y)*ratio;view.scale=next;applyView()}
+function showImage(src){const img=$('image');$('viewer').hidden=false;$('save').href=src;if(img.getAttribute('src')===src)return;img.onload=fitImage;img.src=src}
+$('zoom-in').onclick=()=>zoomBy(1.25);
+$('zoom-out').onclick=()=>zoomBy(.8);
+$('zoom-fit').onclick=fitImage;
+$('save-image').onclick=()=>$('save').click();
+$('copy-image').onclick=async()=>{const button=$('copy-image');try{const blob=await(await fetch($('image').src)).blob();await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);button.textContent='已复制'}catch(error){button.textContent='复制失败'}setTimeout(()=>{button.textContent='复制'},1600)};
+$('viewport').addEventListener('wheel',event=>{event.preventDefault();const rect=$('viewport').getBoundingClientRect();const px=event.clientX-rect.left,py=event.clientY-rect.top;const next=Math.min(8,Math.max(.2,view.scale*(event.deltaY<0?1.1:.9)));const ratio=next/view.scale;view.x=px-(px-view.x)*ratio;view.y=py-(py-view.y)*ratio;view.scale=next;applyView()},{passive:false});
+let drag=null;
+$('viewport').addEventListener('pointerdown',event=>{if(event.button!==0)return;drag={x:event.clientX,y:event.clientY,ox:view.x,oy:view.y};$('viewport').classList.add('dragging');$('viewport').setPointerCapture(event.pointerId)});
+$('viewport').addEventListener('pointermove',event=>{if(!drag)return;view.x=drag.ox+event.clientX-drag.x;view.y=drag.oy+event.clientY-drag.y;applyView()});
+function endDrag(){drag=null;$('viewport').classList.remove('dragging')}
+$('viewport').addEventListener('pointerup',endDrag);
+$('viewport').addEventListener('pointercancel',endDrag);
+showImage('/about/forest-cat.png');
+$('caption').textContent='清晨的森林里，一只橘猫坐在长满青苔的石头上，柔和的阳光穿过树叶，水彩插画风格。';
+async function refresh(){try{const status=await api('/api/status');$('models').replaceChildren();for(const [key,model] of Object.entries(status.models)){const row=document.createElement('div');row.className='model';const name=document.createElement('div');name.textContent=model.repo;row.append(name);const label=document.createElement('p');label.className='small';if(model.ready)label.textContent='已就绪';else{const pct=model.total?(100*model.bytes/model.total).toFixed(1):'0.0';const eta=fmtEta(model.total-model.bytes,model.speed);label.textContent=`${fmtBytes(model.bytes)} / ${fmtBytes(model.total)} · ${pct}% · ${fmtSpeed(model.speed)}${eta?' · '+eta:''}`}row.append(label);const progress=document.createElement('progress');progress.max=model.total||1;progress.value=model.bytes;row.append(progress);if(!model.ready){const shown=(model.files||[]).filter(file=>!file.done||file.total>=10000000);for(const file of shown){const item=document.createElement('div');item.className='file';const text=document.createElement('div');text.className='small';text.title=file.name;text.textContent=file.done?`${fileLabel(file.name)} · 已完成 · ${fmtBytes(file.total)}`:`${fileLabel(file.name)} · ${fmtBytes(file.bytes)} / ${fmtBytes(file.total)} · ${fmtSpeed(file.speed)}`;item.append(text);const bar=document.createElement('progress');bar.max=file.total||1;bar.value=file.bytes;item.append(bar);row.append(item)}const button=document.createElement('button');button.textContent='下载 / 继续下载';button.disabled=!!status.active;button.onclick=()=>start('/api/download',{model:key});row.append(button)}$('models').append(row)}$('generate').disabled=!!status.active;let job=null;if(active){try{job=await api('/api/jobs/'+active)}catch(error){active=null;$('stage').textContent='等待任务'}}if(!active&&status.active){active=status.active;try{job=await api('/api/jobs/'+active)}catch(error){active=null}}if(job){if(job.state==='error'){$('stage').textContent=job.error;hideGen();active=null}else if(job.state==='done'){$('stage').textContent=`完成 · ${job.result.seconds} 秒`;hideGen();if(job.result.image){showImage(job.result.image);$('caption').textContent=job.result.prompt}active=null}else if(job.action==='generate'){renderGenerate(job.progress)}else{const current=job.action==='download'&&Object.values(status.models).find(item=>!item.ready);hideGen();if(current){const pct=current.total?(100*current.bytes/current.total).toFixed(1):'0.0';const eta=fmtEta(current.total-current.bytes,current.speed);$('stage').textContent=`下载中 · ${fmtBytes(current.bytes)} / ${fmtBytes(current.total)} · ${pct}% · ${fmtSpeed(current.speed)}${eta?' · '+eta:''}`}else{$('stage').textContent=job.progress?job.progress.stage:'正在启动模型进程'}}}}catch(error){$('stage').textContent=error.message}finally{setTimeout(refresh,2500)}}refresh();
+</script>
+</html>

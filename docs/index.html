@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>致谢 · 复旦大学计算与智能创新学院 · 邱锡鹏团队</title>
+<meta name="description" content="本地 MOSS-Image 工作台致谢复旦大学计算与智能创新学院邱锡鹏团队。示例图提示词：清晨的森林里，一只橘猫坐在长满青苔的石头上，柔和的阳光穿过树叶，水彩插画风格。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,520;0,9..144,640;1,9..144,520&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #f3ecdf;
+  --ink: #1c261f;
+  --moss: #234233;
+  --sun: #c9843a;
+  --muted: #5d675c;
+  --line: rgba(28, 38, 31, .16);
+  --serif: "Noto Serif SC", "Songti SC", "Iowan Old Style", Palatino, serif;
+  --latin: Fraunces, "Iowan Old Style", Palatino, serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 700px at 0% 0%, rgba(201, 132, 58, .16), transparent 55%),
+    var(--paper);
+  font-family: var(--serif);
+}
+.sheet {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(340px, .92fr);
+}
+figure {
+  margin: 0;
+  position: relative;
+  min-height: 100vh;
+  background: #d7e3c8;
+}
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+figcaption {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 28px;
+  padding: 18px 20px 16px;
+  background: rgba(243, 236, 223, .93);
+  color: var(--ink);
+}
+figcaption span {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--latin);
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--sun);
+}
+blockquote {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.65;
+}
+article {
+  padding: 64px 56px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.eyebrow {
+  margin: 0 0 18px;
+  font-family: var(--latin);
+  font-size: 13px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--moss);
+}
+h1 {
+  margin: 0;
+  font-size: clamp(48px, 6vw, 76px);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  line-height: .95;
+}
+h1 em {
+  font-family: var(--latin);
+  font-style: italic;
+  font-weight: 520;
+  color: var(--moss);
+}
+.college {
+  margin: 22px 0 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+.college-en {
+  margin: 6px 0 0;
+  max-width: 28em;
+  font-family: var(--latin);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 520;
+  line-height: 1.35;
+  color: var(--moss);
+}
+.letter {
+  margin: 28px 0 0;
+  max-width: 38em;
+  font-size: 16px;
+  line-height: 1.85;
+  color: #314036;
+}
+.letter strong { font-weight: 600; color: var(--ink); }
+.rule {
+  width: 72px;
+  height: 2px;
+  margin: 28px 0 8px;
+  background: var(--sun);
+  border: 0;
+}
+ul {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+li { margin: 0; }
+a {
+  color: var(--moss);
+  text-underline-offset: 4px;
+}
+.links a {
+  display: inline-block;
+  margin: 8px 22px 0 0;
+  font-size: 15px;
+}
+.note {
+  margin: 28px 0 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+#workbench {
+  align-self: flex-start;
+  margin-top: 28px;
+  padding: 12px 18px;
+  background: var(--moss);
+  color: #f6f1e6;
+  text-decoration: none;
+  font-size: 15px;
+}
+#workbench:hover { background: #173226; }
+@media (max-width: 860px) {
+  .sheet { grid-template-columns: 1fr; }
+  figure { min-height: 72vw; }
+  figcaption { left: 16px; right: 16px; bottom: 16px; }
+  blockquote { font-size: 16px; }
+  article { padding: 36px 22px 48px; }
+}
+</style>
+</head>
+<body>
+<div class="sheet">
+<figure>
+<img src="forest-cat.png" alt="水彩插画：清晨的森林里，一只橘猫坐在长满青苔的石头上，柔和的阳光穿过树叶">
+<figcaption>
+<span>Prompt</span>
+<blockquote>清晨的森林里，一只橘猫坐在长满青苔的石头上，柔和的阳光穿过树叶，水彩插画风格。</blockquote>
+</figcaption>
+</figure>
+<article>
+<p class="eyebrow">Fudan University</p>
+<h1>致谢<br><em>邱锡鹏</em> 团队</h1>
+<p class="college">复旦大学计算与智能创新学院</p>
+<p class="college-en">College of Computer Science and Artificial Intelligence</p>
+<p class="letter">MOSS-Image 的模型、训练方法、公开权重和官方推理代码，来自邱锡鹏教授带领的 OpenMOSS 团队。团队的工作依托复旦大学计算与智能创新学院，并与上海创智学院、MOSI.AI 等单位协作。MOSS-Image 技术报告将邱锡鹏列为顾问。</p>
+<p class="letter">上面这张图是本机工作台调用 <strong>MOSS-Image-SFT</strong> 生成的示例，提示词就是画面下方的那一句。本仓库只提供固定版本下载、断点续传、Mac 上的 MPS 适配和出图界面，不代表学院或 OpenMOSS 的官方发布，也不改动模型权重。随仓库附带的推理管线保留上游 Apache-2.0 许可。</p>
+<hr class="rule">
+<ul class="links">
+<li><a id="workbench" href="/">打开本地工作台</a></li>
+<li><a href="https://cs.fudan.edu.cn/">计算与智能创新学院</a></li>
+<li><a href="https://www.open-moss.com/">OpenMOSS</a></li>
+<li><a href="https://github.com/OpenMOSS/MOSS-Image">MOSS-Image 代码</a></li>
+<li><a href="https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT">MOSS-Image-SFT 权重</a></li>
+<li><a href="http://openmoss.ai/MOSS-Image/paper/MOSS_Image_Technical_Report.pdf">技术报告</a></li>
+</ul>
+<p class="note">示例图 512×512。本地服务默认在 127.0.0.1:7860，致谢页路径为 /about/。</p>
+</article>
+</div>
+<script>
+if (location.hostname.endsWith('github.io')) {
+  const link = document.getElementById('workbench');
+  link.textContent = '查看启动方式';
+  link.href = 'https://github.com/bennix/OpenMOSSImageFlask#启动';
+}
+</script>
+</body>
+</html>
