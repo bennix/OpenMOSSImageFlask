@@ -8,10 +8,30 @@ def client():
 
 @pytest.mark.parametrize('payload', [None, [], {}, {'prompt': ' '}, {'prompt': 'cat', 'width': 257},
     {'prompt': 'cat', 'steps': 0}, {'prompt': 'cat', 'seed': -1},
-    {'prompt': 'cat', 'width': True}, {'prompt': 'cat', 'enhance': 'false'}])
+    {'prompt': 'cat', 'width': True}, {'prompt': 'cat', 'negative': 1},
+    {'prompt': 'cat', 'negative': 'x' * 12001}, {'prompt': 'cat', 'enhance': 'false'},
+    {'prompt': 'cat', 'enhance': 'poster'}, {'prompt': 'cat', 'region': {'x': -1, 'y': 0, 'w': 10, 'h': 10, 'source_width': 512, 'source_height': 512, 'note': '石头'}},
+    {'prompt': 'cat', 'region': {'x': 1, 'y': 1, 'w': 20, 'h': 20, 'source_width': 512, 'source_height': 512, 'note': '  ', 'kind': 'text'}},
+    {'prompt': 'cat', 'region': {'x': 1, 'y': 1, 'w': 20, 'h': 20, 'source_width': 512, 'source_height': 512, 'note': '石头', 'kind': 'poster'}},
+    {'prompt': 'cat', 'lora': 'yes'}, {'prompt': 'cat', 'lora_scale': 3}])
 def test_invalid_generation(client, payload):
     response = client.post('/api/generate', json=payload)
     assert response.status_code == 400
+
+
+def test_lora_defaults_and_weight_gate(client, monkeypatch):
+    plain = module.validate({'prompt': 'cat'})
+    assert plain['lora'] is False and plain['lora_scale'] == 0.7 and plain['negative'] == '' and plain['region'] is None
+    assert module.validate({'prompt': 'cat', 'enhance': 'layout'})['enhance'] == 'layout'
+    boxed = module.validate({'prompt': 'cat', 'region': {'x': 10, 'y': 20, 'w': 30, 'h': 40, 'source_width': 512, 'source_height': 512, 'note': '  石头  '}})
+    assert boxed['region']['note'] == '石头' and boxed['region']['w'] == 30 and boxed['region']['kind'] == 'edit'
+    assert module.validate({'prompt': 'cat', 'region': {'x': 1, 'y': 1, 'w': 20, 'h': 20, 'source_width': 512, 'source_height': 512, 'note': '青苔', 'kind': 'text'}})['region']['kind'] == 'text'
+    assert module.validate({'prompt': 'cat', 'negative': '  模糊  '})['negative'] == '模糊'
+    assert module.validate({'prompt': 'cat', 'lora': True, 'lora_scale': 0.7})['lora'] is True
+    monkeypatch.setattr(module, 'model_status', lambda key: {'ready': key != 'lora', 'repo': key})
+    refused = client.post('/api/generate', json={'prompt': 'cat', 'lora': True})
+    assert refused.status_code == 409
+    assert 'Moss-image-nsfw-uncensored-lora' in refused.json['error']
 
 
 def test_missing_weights(client, monkeypatch):
@@ -51,6 +71,27 @@ def test_paths_and_download_validation(client):
     assert b'id="viewport"' in client.get('/').data
     assert '复制'.encode() in client.get('/').data
     assert '保存'.encode() in client.get('/').data
+    page = client.get('/').data
+    assert b'NSFW' not in page and b'nsfw' not in page and b'moss_xvstyle' not in page
+    assert b'id="lora"' not in page
+    assert b'id="upscale"' in client.get('/').data
+    assert '高清'.encode() in client.get('/').data
+    assert b'id="negative"' in client.get('/').data
+    assert '负向提示词'.encode() in client.get('/').data
+    assert '框选'.encode() in client.get('/').data
+    assert '添加文字'.encode() in client.get('/').data
+    assert '后期修改'.encode() in client.get('/').data
+    assert '修改这块'.encode() in client.get('/').data
+    assert b'id="ratio"' in client.get('/').data
+
+
+def test_upscale_validation(client, monkeypatch):
+    assert client.post('/api/upscale', json={'src': '/etc/passwd', 'mode': 'fast'}).status_code == 400
+    assert client.post('/api/upscale', json={'src': '/about/forest-cat.png', 'mode': 'other'}).status_code == 400
+    monkeypatch.setattr(module, 'model_status', lambda key: {'ready': False, 'repo': 'xinntao/Real-ESRGAN'})
+    missing = client.post('/api/upscale', json={'src': '/about/forest-cat.png', 'mode': 'fast'})
+    assert missing.status_code == 409
+    assert 'Real-ESRGAN' in missing.json['error']
     about = client.get('/about/')
     assert about.status_code == 200
     assert '邱锡鹏'.encode() in about.data

@@ -70,5 +70,39 @@
       "model.safetensors": "5fb9acd0246866381cf8c5c354c6db1019f6498eec4ccb4f5edcc71ffeacb2db",
       "tokenizer.json": "87a7830d63fcf43bf241c3c5242e96e62dd3fdc29224ca26fed8ea333db72de4"
     }
+  },
+  "lora": {
+    "repo": "axiomofmind/Moss-image-nsfw-uncensored-lora",
+    "revision": "7f8c6953c6a88af8cbc8daeb34633c237dd1a7bb",
+    "folder": "lora",
+    "trigger": "moss_xvstyle",
+    "files": {
+      "adapter_config.json": 203,
+      "pytorch_lora_weights.safetensors": 74377208
+    },
+    "sha256": {
+      "adapter_config.json": "5bbe0da33daaaeb217b4c111d1fef04c1e679a1c72e086b5bbe1bfdbf55a783a",
+      "pytorch_lora_weights.safetensors": "d62ce599744d3e3f07f55a1f539052a99acc38d34bf35c13518aa949fc856afa"
+    }
+  },
+  "upscale": {
+    "repo": "xinntao/Real-ESRGAN",
+    "revision": "v0.2.5.0",
+    "folder": "upscale",
+    "files": {
+      "RealESRGAN_x4plus.pth": 67040989,
+      "RealESRGAN_x4plus_anime_6B.pth": 17938799,
+      "RealESRGAN_x2plus.pth": 67061725
+    },
+    "sha256": {
+      "RealESRGAN_x4plus.pth": "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1",
+      "RealESRGAN_x4plus_anime_6B.pth": "f872d837d3c90ed2e05227bed711af5671a6fd1c9f7d7e91c911a61f155e99da",
+      "RealESRGAN_x2plus.pth": "49fafd45f8fd7aa8d31ab2a22d14d91b536c34494a5cfe31eb5d89c2fa266abb"
+    },
+    "mirrors": {
+      "RealESRGAN_x4plus.pth": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
+      "RealESRGAN_x4plus_anime_6B.pth": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth",
+      "RealESRGAN_x2plus.pth": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.1/RealESRGAN_x2plus.pth"
+    }
   }
 }

@@ -127,6 +127,10 @@ def validate(data):
     if not isinstance(prompt, str) or not prompt.strip() or len(prompt) > 12000:
         raise ValueError('请输入 1–12000 字符的提示词。')
     result = {'prompt': prompt.strip()}
+    negative = data.get('negative', '')
+    if not isinstance(negative, str) or len(negative) > 12000:
+        raise ValueError('负向提示词需在 12000 字符以内。')
+    result['negative'] = negative.strip()
     for field, default, low, high in [('width', 512, 256, 1024), ('height', 512, 256, 1024),
                                       ('steps', 30, 1, 75), ('seed', 42, 0, 2**32 - 1)]:
         value = data.get(field, default)
@@ -136,9 +140,48 @@ def validate(data):
             raise ValueError('宽高必须是 16 的倍数。')
         result[field] = value
     enhance = data.get('enhance', False)
-    if type(enhance) is not bool:
-        raise ValueError('enhance 必须是布尔值。')
+    if enhance is True:
+        enhance = 'caption'
+    elif enhance is False:
+        enhance = 'off'
+    elif enhance not in ('off', 'caption', 'layout'):
+        raise ValueError('enhance 必须是 off、caption 或 layout。')
     result['enhance'] = enhance
+    region = data.get('region', None)
+    if region is not None:
+        if not isinstance(region, dict):
+            raise ValueError('选区格式不正确。')
+        note = region.get('note', '')
+        if not isinstance(note, str) or len(note) > 2000:
+            raise ValueError('选区说明需在 2000 字符以内。')
+        if not note.strip():
+            raise ValueError('请写下要添加或修改的内容。')
+        kind = region.get('kind', 'edit')
+        if kind not in ('text', 'add', 'edit'):
+            raise ValueError('选区操作必须是 text、add 或 edit。')
+        box = {}
+        for key in ('x', 'y', 'w', 'h', 'source_width', 'source_height'):
+            value = region.get(key)
+            if isinstance(value, bool) or type(value) not in (int, float):
+                raise ValueError('选区坐标不正确。')
+            box[key] = float(value)
+        if box['w'] < 2 or box['h'] < 2 or box['x'] < 0 or box['y'] < 0:
+            raise ValueError('选区太小。')
+        if not 16 <= box['source_width'] <= 8192 or not 16 <= box['source_height'] <= 8192:
+            raise ValueError('原图尺寸无效。')
+        if box['x'] + box['w'] > box['source_width'] + 1 or box['y'] + box['h'] > box['source_height'] + 1:
+            raise ValueError('选区超出图片。')
+        result['region'] = {**box, 'note': note.strip(), 'kind': kind}
+    else:
+        result['region'] = None
+    lora = data.get('lora', False)
+    if type(lora) is not bool:
+        raise ValueError('lora 必须是布尔值。')
+    result['lora'] = lora
+    scale = data.get('lora_scale', 0.7)
+    if isinstance(scale, bool) or type(scale) not in (int, float) or not 0 <= scale <= 2:
+        raise ValueError('lora_scale 必须是 0–2 之间的数。')
+    result['lora_scale'] = float(scale)
     return result
 
 
@@ -201,7 +244,7 @@ def status():
 def download():
     data = request.get_json(silent=True)
     if not isinstance(data, dict) or data.get('model') not in MODELS:
-        return jsonify(error='model 必须为 moss 或 prompt。'), 400
+        return jsonify(error='model 必须为 moss、prompt、lora 或 upscale。'), 400
     return submit('download', {'model': data['model']})
 
 
@@ -211,10 +254,29 @@ def generate():
         data = validate(request.get_json(silent=True))
     except ValueError as exc:
         return jsonify(error=str(exc)), 400
-    for key in (['moss', 'prompt'] if data['enhance'] else ['moss']):
+    needed = ['moss']
+    if data['enhance'] != 'off':
+        needed.append('prompt')
+    if data['lora']:
+        needed.append('lora')
+    for key in needed:
         if not model_status(key)['ready']:
             return jsonify(error=f'请先下载 {MODELS[key]["repo"]}。'), 409
     return submit('generate', data)
+
+
+@app.post('/api/upscale')
+def upscale():
+    from worker import upscale_request
+    body = request.get_json(silent=True)
+    try:
+        data = upscale_request(body.get('src') if isinstance(body, dict) else None,
+                               body.get('mode', 'photo') if isinstance(body, dict) else 'photo')
+    except ValueError as exc:
+        return jsonify(error=str(exc)), 400
+    if not model_status('upscale')['ready']:
+        return jsonify(error=f'请先下载 {MODELS["upscale"]["repo"]}。'), 409
+    return submit('upscale', data)
 
 
 @app.get('/api/jobs/<job_id>')

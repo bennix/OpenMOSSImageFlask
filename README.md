@@ -21,11 +21,11 @@ uv pip install --python .venv/bin/python -r requirements.txt
 ## 模型与内存
 
 - 图像模型：`OpenMOSS-Team/MOSS-Image-SFT`，约 27.2 GB，包含 Qwen3.5-9B 文本编码器、DiT 和 VAE。
-- 提示词模型：`mlx-community/Qwen3.5-4B-4bit`，通用非露骨图像提示词扩写。
+- 提示词模型：`mlx-community/Qwen3.5-4B-4bit`，把简短构思扩写成图像描述。
 - 如果系统已有 `aria2c`，大权重使用 16 连接下载，校验 SHA-256；没有时自动使用 Python HTTP 下载。`.part.aria2` 控制文件用于恢复分段进度，请保留。
 - MOSS 大权重优先通过官方 ModelScope 镜像下载，每个文件固定到镜像提交并与 Hugging Face 清单的 SHA-256 比对；中断后通过 `.part` 文件续传。小配置文件使用 Hugging Face。
-- 模型版本固定在 `models.json`，权重位于 `models/moss-sft/` 和 `models/prompt/`，不会自动更新。
-- 未接入 NSFW 提示词编译器、拒答绕过或 uncensored LoRA。用户提供的 27B 模型不是本项目的默认模型，也未下载。
+- 模型版本固定在 `models.json`，图像与提示词权重位于 `models/moss-sft/` 和 `models/prompt/`，不会自动更新。
+- 高清放大使用 Real-ESRGAN 官方权重：照片 `RealESRGAN_x4plus`、插画 `RealESRGAN_x4plus_anime_6B`、快速 `RealESRGAN_x2plus`。放大在单独进程里分块运行，不把模型留在 Flask 进程中，也不安装 basicsr。
 - 在 36 GB Mac 上，MLX 扩写使用独立子进程，退出后再加载 MOSS。MOSS 编码完毕释放文本编码器，再加载 DiT 与 VAE，避免全部组件同时常驻。仍需为系统和其他应用留出内存；建议先使用 512×512。
 - Apple Silicon 使用 PyTorch MPS；CUDA 或 CPU 可运行图像部分。MLX 扩写仅适用于 Apple Silicon。
 - MOSS 提示词编码最多 512 token；输出文件保存在 `outputs/<任务ID>/`，包含请求、实际提示词、日志、进度、结果与图片。
@@ -43,11 +43,13 @@ curl -X POST http://127.0.0.1:7860/api/download \
 # 生成任务，返回 202 与 id
 curl -X POST http://127.0.0.1:7860/api/generate \
   -H 'Content-Type: application/json' \
-  -d '{"prompt":"A watercolor orange cat in a sunlit forest", "width":512,"height":512,"steps":30,"seed":42,"enhance":false}'
+  -d '{"prompt":"A watercolor orange cat in a sunlit forest", "negative":"", "width":512,"height":512,"steps":30,"seed":42,"enhance":false}'
 
 # 查询任务，用实际 id 替换 TASK_ID
 curl http://127.0.0.1:7860/api/jobs/TASK_ID
 ```
+
+`enhance` 可为 `off`、`caption` 或 `layout`。`layout` 先由本地提示词模型写出官方草稿，再编译成画布中心坐标。`region.kind` 为 `text`（添加文字）、`add`（添加内容）或 `edit`（修改这块）。选区会按该位置重新生成整张图；页面在已有生成结果上沿用原来的种子、宽高和步数，并在上一张的构图上追加，已添加的文字和内容会保留。宽高仍须是 16 的倍数，页面提供常见比例。
 
 单次只运行一个下载或生成任务；其他请求返回 409。任务状态保存在进程内存，Flask 重启后历史文件仍在 `outputs/` 中。不要启用 Flask 自动重载或多 worker；这是供个人本地使用的开发服务。
 

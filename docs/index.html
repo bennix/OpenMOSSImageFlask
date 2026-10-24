@@ -141,6 +141,21 @@ a {
   margin: 8px 22px 0 0;
   font-size: 15px;
 }
+.version {
+  margin: 36px 0 0;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -.03em;
+}
+.changes { margin: 8px 0 0; }
+.changes li {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  font-size: 15px;
+  line-height: 1.75;
+  color: #314036;
+}
+.changes strong { color: var(--ink); }
 .note {
   margin: 28px 0 0;
   font-size: 13px;
@@ -182,6 +197,15 @@ a {
 <p class="college-en">College of Computer Science and Artificial Intelligence</p>
 <p class="letter">MOSS-Image 的模型、训练方法、公开权重和官方推理代码，来自邱锡鹏教授带领的 OpenMOSS 团队。团队的工作依托复旦大学计算与智能创新学院，并与上海创智学院、MOSI.AI 等单位协作。MOSS-Image 技术报告将邱锡鹏列为顾问。</p>
 <p class="letter">上面这张图是本机工作台调用 <strong>MOSS-Image-SFT</strong> 生成的示例，提示词就是画面下方的那一句。本仓库只提供固定版本下载、断点续传、Mac 上的 MPS 适配和出图界面，不代表学院或 OpenMOSS 的官方发布，也不改动模型权重。随仓库附带的推理管线保留上游 Apache-2.0 许可。</p>
+<h2 class="version">这一版工作台</h2>
+<ul class="changes">
+<li><strong>负向提示词。</strong>可以写下不想出现的内容。留空时仍使用模型原来的采样。</li>
+<li><strong>提示词扩写。</strong>可以不扩写，扩成详细描述，或编译成官方 Layout 坐标。</li>
+<li><strong>宽高比。</strong>可以直接选择 1:1、16:9、9:16、4:3、3:4、3:2 和 2:3。</li>
+<li><strong>框选修改。</strong>在成图上添加文字、添加内容，或改掉一块区域。后一次修改会保留前面加过的内容，并沿用原来的种子、宽高和步数。</li>
+<li><strong>高清放大。</strong>使用 Real-ESRGAN 官方权重，可选照片 4×、插画 4× 或快速 2×。</li>
+</ul>
+<p class="note">以上是本地界面新增的用法，不是模型权重的改动，也不代表学院或 OpenMOSS 的官方功能。</p>
 <hr class="rule">
 <ul class="links">
 <li><a id="workbench" href="/">打开本地工作台</a></li>
